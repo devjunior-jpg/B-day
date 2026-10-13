@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joyeux Anniversaire Jumeaux ! 🎉</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,800;1,600;1,800&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #090714;
+            color: #f3f4f6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-arcade {
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        /* Glassmorphism Styles */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card-crush {
+            background: rgba(236, 72, 153, 0.06);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(244, 114, 182, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(236, 72, 153, 0.2);
+        }
+
+        .glass-card-bro {
+            background: rgba(14, 165, 233, 0.06);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.2);
+        }
+
+        /* Glow effects */
+        .glow-pink { box-shadow: 0 0 35px rgba(236, 72, 153, 0.35); }
+        .glow-blue { box-shadow: 0 0 35px rgba(14, 165, 233, 0.35); }
+        .glow-gold { box-shadow: 0 0 35px rgba(234, 179, 8, 0.35); }
+
+        /* Text Gradient utilities */
+        .text-gradient-pink {
+            background: linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #fb7185 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-gradient-blue {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 50%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-gradient-gold {
+            background: linear-gradient(135deg, #fde047 0%, #eab308 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Candle flame animation */
+        .flame {
+            background-color: #ff9d00;
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 10px #ff9d00, 0 0 20px #ff9d00, 0 0 30px #ff0000;
+            transform-origin: center bottom;
+            animation: flicker 0.12s ease-in-out infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-2deg); opacity: 0.9; }
+            100% { transform: scale(1.15) rotate(2deg); opacity: 1; }
+        }
+
+        /* Shake animation for wrong password */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Scratch Card Canvas */
+        .scratch-container {
+            position: relative;
+            user-select: none;
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="relative flex flex-col min-h-screen">
+
+    <!-- Background Ambient Glows -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div id="glow1" class="absolute -top-40 -left-40 w-96 h-96 bg-pink-600/20 rounded-full blur-3xl transition-all duration-1000"></div>
+        <div id="glow2" class="absolute top-1/3 -right-40 w-96 h-96 bg-sky-600/20 rounded-full blur-3xl transition-all duration-1000"></div>
+        <div id="glow3" class="absolute -bottom-40 left-1/3 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl transition-all duration-1000"></div>
+    </div>
+
+    <!-- Top Fixed Bar with Audio Control & Home -->
+    <div class="fixed top-4 right-4 left-4 z-40 flex justify-between items-center max-w-7xl mx-auto pointer-events-none">
+        <button id="homeNavBtn" onclick="switchView('main-portal')" class="pointer-events-auto hidden glass-card px-4 py-2.5 rounded-full text-xs md:text-sm font-semibold text-white hover:bg-white/10 transition flex items-center gap-2 border border-white/20 shadow-xl">
+            <i class="fas fa-arrow-left text-pink-400"></i>
+            <span>Retour au Portail Jumeaux</span>
+        </button>
+
+        <div class="ml-auto flex items-center gap-2 pointer-events-auto">
+            <button id="musicToggle" class="glass-card px-4 py-2.5 rounded-full text-xs md:text-sm font-semibold flex items-center gap-2 hover:bg-white/10 transition duration-300 border border-white/20 shadow-xl">
+                <i id="musicIcon" class="fas fa-music text-pink-400"></i>
+                <span id="musicText" class="hidden sm:inline">Musique</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER FOR SPA VIEWS -->
+    <main id="app-content" class="relative z-10 flex-grow flex flex-col">
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: MAIN TWINS PORTAL                  -->
+        <!-- ========================================== -->
+        <section id="view-main-portal" class="view-section flex-grow flex flex-col justify-between px-4 py-16 max-w-7xl mx-auto w-full">
+            
+            <!-- Hero Header -->
+            <div class="text-center mt-8 mb-12">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-6 animate-pulse">
+                    <span class="w-2.5 h-2.5 rounded-full bg-pink-500"></span>
+                    <span class="text-xs uppercase tracking-widest text-pink-300 font-semibold">1 Fête • 2 Univers Exclusifs</span>
+                </div>
+
+                <h1 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight mb-6 leading-tight">
+                    Joyeux Anniversaire <br>
+                    <span class="text-gradient-gold font-serif-title italic">aux Jumeaux !</span> 🎉
+                </h1>
+
+                <p class="text-gray-300 text-base md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+                    Une journée spéciale pour deux personnes extraordinaires. Explorez le portail principal ou déverrouillez votre espace privé confidentiel !
+                </p>
+
+                <!-- Global Action Button -->
+                <div class="mt-8 flex justify-center gap-4">
+                    <button onclick="launchGlobalConfetti()" class="px-8 py-3.5 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-sky-500 text-white font-bold text-base hover:opacity-90 shadow-xl glow-pink transition transform hover:-translate-y-1 flex items-center gap-2">
+                        <i class="fas fa-sparkles"></i> Lancer la Fête !
+                    </button>
+                </div>
+            </div>
+
+            <!-- Twins Cards Section -->
+            <div class="grid md:grid-cols-2 gap-8 my-8 max-w-5xl mx-auto w-full items-stretch">
+                
+                <!-- HER CARD (Crush) -->
+                <div class="glass-card-crush rounded-3xl p-8 relative flex flex-col justify-between transition-all duration-500 hover:glow-pink border border-pink-500/30 group">
+                    <div class="absolute -top-3 -right-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-extrabold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                        <i class="fas fa-lock text-yellow-300"></i> Espace Sécurisé
+                    </div>
+
+                    <div>
+                        <div class="relative w-28 h-28 mx-auto mb-6">
+                            <img src="Justine1.jpg" alt="Sa photo" class="w-full h-full object-cover rounded-full p-1 bg-gradient-to-tr from-pink-500 to-yellow-400 shadow-2xl group-hover:scale-105 transition duration-300">
+                            <span class="absolute bottom-1 right-1 bg-pink-500 text-white p-2 rounded-full text-xs shadow-md">👑</span>
+                        </div>
+
+                        <h2 class="text-2xl sm:text-3xl font-bold text-center text-gradient-pink mb-1">
+                            Espace  Justine 💖 💖 💖
+                        </h2>
+                        <p class="text-pink-300/80 text-center text-xs uppercase tracking-wider mb-4 font-semibold">Celle qui illumine tout</p>
+
+                        <p class="text-gray-300 text-sm leading-relaxed mb-6 font-light text-center">
+                            Un univers romantique, élégant et rempli de surprises personnalisées, de gâteau interactif et de secrets réservés rien que pour elle.
+                        </p>
+                    </div>
+
+                    <button onclick="openPasswordModal('crush')" class="w-full py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white font-bold text-sm transition shadow-lg flex items-center justify-center gap-2 group-hover:shadow-pink-500/25">
+                        <i class="fas fa-key"></i> Déverrouiller Mon Espace
+                    </button>
+                </div>
+
+                <!-- HIS CARD (Brother) -->
+                <div class="glass-card-bro rounded-3xl p-8 relative flex flex-col justify-between transition-all duration-500 hover:glow-blue border border-sky-500/30 group">
+                    <div class="absolute -top-3 -right-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white text-xs font-extrabold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                        <i class="fas fa-lock text-yellow-300"></i> Espace Sécurisé
+                    </div>
+
+                    <div>
+                        <div class="relative w-28 h-28 mx-auto mb-6">
+                            <img src="Justin.jpg" alt="Son frère" class="w-full h-full object-cover rounded-full p-1 bg-gradient-to-tr from-sky-400 to-indigo-500 shadow-2xl group-hover:scale-105 transition duration-300">
+                            <span class="absolute bottom-1 right-1 bg-sky-500 text-white p-2 rounded-full text-xs shadow-md">⚡</span>
+                        </div>
+
+                        <h2 class="text-2xl sm:text-3xl font-bold text-center text-gradient-blue mb-1">
+                            Espace Justin 👊 👊 👊 
+                        </h2>
+                        <p class="text-sky-300/80 text-center text-xs uppercase tracking-wider mb-4 font-semibold">Le Frérot / The Champ</p>
+
+                        <p class="text-gray-300 text-sm leading-relaxed mb-6 font-light text-center">
+                            Un espace VIP gamer et haut en énergie avec un mini-jeu d'arcade, des moments mémorables, des toasteurs et du fun garanti !
+                        </p>
+                    </div>
+
+                    <button onclick="openPasswordModal('brother')" class="w-full py-4 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold text-sm transition shadow-lg flex items-center justify-center gap-2 group-hover:shadow-sky-500/25">
+                        <i class="fas fa-gamepad"></i> Déverrouiller Mon Espace
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Confidentiality Notice Banner -->
+            <div class="glass-card rounded-2xl p-6 text-center max-w-3xl mx-auto border border-white/10 my-6">
+                <div class="flex items-center justify-center gap-2 text-yellow-400 mb-2">
+                    <i class="fas fa-shield-halved text-lg"></i>
+                    <h3 class="font-bold text-sm uppercase tracking-wider">Espaces Privés & Confidentiels</h3>
+                </div>
+                <p class="text-gray-400 text-xs md:text-sm leading-relaxed">
+                    Chacun des deux jumeaux possède son propre code d'accès privé pour découvrir ses messages personnels.
+                </p>
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: HER SUB-SITE (The Crush)           -->
+        <!-- ========================================== -->
+        <section id="view-crush-site" class="view-section hidden flex-grow px-4 py-20 max-w-6xl mx-auto w-full">
+            
+            <!-- Hero Header -->
+            <div class="text-center mb-16 relative">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-500/20 border border-pink-500/40 text-pink-300 text-xs font-bold uppercase tracking-widest mb-4">
+                    <i class="fas fa-heart text-pink-400"></i> Espace Personnel Privé
+                </div>
+
+                <h1 class="text-4xl md:text-7xl font-extrabold font-serif-title text-gradient-pink mb-4 italic">
+                    Joyeux Anniversaire Justine 💖 💖 💖
+                </h1>
+
+                <p class="text-gray-300 text-base md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+                    Cet espace a été créé spécialement pour toi. Profite de chaque surprise préparée avec attention !
+                </p>
+            </div>
+
+            <!-- Candle Blowing Widget -->
+            <div class="glass-card-crush rounded-3xl p-8 mb-16 max-w-2xl mx-auto text-center relative overflow-hidden border border-pink-500/30">
+                <h3 class="text-2xl font-bold font-serif-title text-pink-200 mb-2">Le Gâteau de ton Jour J 🎂</h3>
+                <p class="text-gray-400 text-xs md:text-sm mb-6">Fais un vœu secret et clique sur les bougies pour les souffler !</p>
+
+                <!-- Interactive Cake -->
+                <div onclick="blowCrushCandles()" class="cursor-pointer inline-block relative my-4 transform transition hover:scale-105 active:scale-95">
+                    <div class="relative w-48 h-44 mx-auto flex flex-col items-center justify-end">
+                        <!-- Candles -->
+                        <div class="flex gap-4 mb-1">
+                            <div class="relative flex flex-col items-center">
+                                <div id="cFlame1" class="flame w-3.5 h-5 mb-1"></div>
+                                <div class="w-2.5 h-8 bg-gradient-to-b from-pink-300 to-rose-500 rounded-t-sm"></div>
+                            </div>
+                            <div class="relative flex flex-col items-center">
+                                <div id="cFlame2" class="flame w-3.5 h-5 mb-1"></div>
+                                <div class="w-2.5 h-8 bg-gradient-to-b from-purple-300 to-pink-500 rounded-t-sm"></div>
+                            </div>
+                            <div class="relative flex flex-col items-center">
+                                <div id="cFlame3" class="flame w-3.5 h-5 mb-1"></div>
+                                <div class="w-2.5 h-8 bg-gradient-to-b from-amber-200 to-pink-500 rounded-t-sm"></div>
+                            </div>
+                        </div>
+                        <!-- Cake Body -->
+                        <div class="w-44 h-14 bg-gradient-to-r from-pink-400 via-rose-400 to-purple-400 rounded-t-2xl shadow-lg relative overflow-hidden flex items-center justify-center">
+                            <div class="w-full h-3 bg-white/30 absolute top-2"></div>
+                            <span class="text-xs font-bold tracking-widest text-white/90 uppercase font-serif-title">Queen's Day</span>
+                        </div>
+                        <div class="w-52 h-10 bg-gradient-to-r from-rose-700 to-pink-900 rounded-b-xl shadow-2xl"></div>
+                        <div class="w-60 h-3 bg-white/20 rounded-full mt-1"></div>
+                    </div>
+                </div>
+
+                <p id="crushCakeStatus" class="text-pink-300 font-medium text-xs md:text-sm mt-4">
+                    <i class="fas fa-hand-pointer mr-1 animate-bounce"></i> Clique sur le gâteau pour éteindre les bougies !
+                </p>
+            </div>
+
+            <!-- Scratch Card Invitation Section -->
+            <div class="glass-card-crush rounded-3xl p-8 mb-16 max-w-2xl mx-auto text-center border border-pink-500/30">
+                <div class="inline-flex items-center gap-2 text-pink-400 text-xs font-bold uppercase tracking-wider mb-2">
+                    <i class="fas fa-gift"></i> Surprise Restreinte
+                </div>
+                <h3 class="text-2xl font-bold font-serif-title text-white mb-2">Gratte pour révéler ton invitation ! 💌</h3>
+                <p class="text-gray-400 text-xs md:text-sm mb-6">Fais glisser ton doigt ou ta souris sur la zone dorée ci-dessous.</p>
+
+                <!-- Scratch Card Canvas Area -->
+                <div class="scratch-container w-full max-w-md mx-auto h-48 rounded-2xl overflow-hidden relative border-2 border-pink-500/40 shadow-2xl">
+                    <!-- Revealed Hidden Content Underneath -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-pink-950 via-rose-900 to-purple-950 p-6 flex flex-col items-center justify-center text-center">
+                        <i class="fas fa-glass-cheers text-3xl text-pink-400 mb-2"></i>
+                        <h4 class="text-lg font-bold text-pink-100 font-serif-title">Un verre pour fêter ça ? 🥂</h4>
+                        <p class="text-xs text-pink-200/90 mt-2 leading-relaxed">
+                            « Tu as une énergie unique qui rend tout plus spécial. Je t'invite à aller boire un verre ensemble quand tu veux ! »
+                        </p>
+                        <span class="text-[10px] text-pink-400 mt-3 font-semibold uppercase tracking-widest">Envoie-moi un message dès que tu lis ceci 😉</span>
+                    </div>
+
+                    <!-- Scratch Overlay Canvas -->
+                    <canvas id="scratchCanvas" class="absolute inset-0 w-full h-full cursor-pointer z-10"></canvas>
+                </div>
+            </div>
+
+            <!-- Memory Photo Gallery -->
+            <div class="mb-16">
+                <h3 class="text-2xl md:text-3xl font-bold font-serif-title text-center text-white mb-8">
+                    Moment Highlights 📸
+                </h3>
+
+                <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    <!-- Polaroid 1 -->
+                    <div class="glass-card p-4 rounded-2xl transform rotate-1 hover:rotate-0 transition duration-300 hover:glow-pink border border-white/10">
+                        <div class="h-56 rounded-xl overflow-hidden mb-3">
+                            <img src="Justine.jpg" alt="Souvenir" class="w-full h-full object-cover">
+                        </div>
+                        <p class="font-serif-title italic text-sm text-pink-200 text-center">« Rayonnante comme toujours »</p>
+                    </div>
+
+                    <!-- Polaroid 2 -->
+                    <div class="glass-card p-4 rounded-2xl transform -rotate-2 hover:rotate-0 transition duration-300 hover:glow-pink border border-white/10">
+                        <div class="h-56 rounded-xl overflow-hidden mb-3">
+                            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=500" alt="Souvenir" class="w-full h-full object-cover">
+                        </div>
+                        <p class="font-serif-title italic text-sm text-pink-200 text-center">« Good Vibes Only ✨ »</p>
+                    </div>
+
+                    <!-- Polaroid 3 -->
+                    <div class="glass-card p-4 rounded-2xl transform rotate-2 hover:rotate-0 transition duration-300 hover:glow-pink border border-white/10 sm:col-span-2 md:col-span-1">
+                        <div class="h-56 rounded-xl overflow-hidden mb-3">
+                            <img src="https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&q=80&w=500" alt="Souvenir" class="w-full h-full object-cover">
+                        </div>
+                        <p class="font-serif-title italic text-sm text-pink-200 text-center">« Vers une nouvelle année au top »</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Return Button -->
+            <div class="text-center pt-8">
+                <button onclick="switchView('main-portal')" class="px-8 py-3.5 rounded-full glass-card hover:bg-white/10 text-white font-semibold text-sm transition border border-white/20">
+                    <i class="fas fa-arrow-left mr-2"></i> Retourner au Portail Principal
+                </button>
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: HIS SUB-SITE (The Twin Brother)    -->
+        <!-- ========================================== -->
+        <section id="view-brother-site" class="view-section hidden flex-grow px-4 py-20 max-w-6xl mx-auto w-full">
+            
+            <!-- Hero Header -->
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-500/20 border border-sky-500/40 text-sky-300 text-xs font-bold uppercase tracking-widest mb-4">
+                    <i class="fas fa-crown text-sky-400"></i> Space VIP Jumeau
+                </div>
+
+                <h1 class="text-4xl md:text-7xl font-black text-gradient-blue mb-4 uppercase tracking-tight">
+                    Happy B-Day Bro ! 🚀
+                </h1>
+
+                <p class="text-gray-300 text-base md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+                    Bienvenue dans ton QG personnel. Force à toi pour cette nouvelle année !
+                </p>
+            </div>
+
+            <!-- Arcade Mini Game Widget -->
+            <div class="glass-card-bro rounded-3xl p-6 md:p-8 mb-16 max-w-3xl mx-auto border border-sky-500/30">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-gamepad text-2xl text-sky-400"></i>
+                        <h3 class="text-xl font-bold font-arcade text-sky-200">BRO-BLASTER ARCADE</h3>
+                    </div>
+                    <span id="gameScore" class="font-arcade text-xs bg-sky-950 text-sky-300 px-3 py-1.5 rounded-lg border border-sky-500/40">SCORE: 0</span>
+                </div>
+
+                <p class="text-xs text-gray-400 mb-4">Déplace le vaisseau avec ta souris/doigt ou les flèches du clavier pour détruire les astéroïdes d'anniversaire !</p>
+
+                <!-- Arcade Canvas Area -->
+                <div class="relative rounded-2xl overflow-hidden bg-slate-950 border-2 border-sky-500/40 h-64 w-full flex items-center justify-center">
+                    <canvas id="arcadeCanvas" class="w-full h-full block"></canvas>
+                    <div id="gameStartOverlay" class="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-4 text-center z-10">
+                        <h4 class="font-arcade text-sky-300 text-sm mb-4">READY PLAYER ONE ?</h4>
+                        <button onclick="startArcadeGame()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 font-bold text-white font-arcade text-xs hover:scale-105 transition shadow-lg glow-blue">
+                            JOUER / START
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toast / Stats Grid -->
+            <div class="grid md:grid-cols-3 gap-6 mb-16">
+                <div class="glass-card p-6 rounded-2xl border border-sky-500/20 text-center">
+                    <i class="fas fa-fire text-3xl text-amber-400 mb-3"></i>
+                    <h4 class="font-bold text-white text-lg mb-1">Niveau Supérieur</h4>
+                    <p class="text-xs text-gray-400">XP & Charisme débloqués pour l'année à venir.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border border-sky-500/20 text-center">
+                    <i class="fas fa-trophy text-3xl text-yellow-400 mb-3"></i>
+                    <h4 class="font-bold text-white text-lg mb-1">Stats Max</h4>
+                    <p class="text-xs text-gray-400">Loyauté 100% | Mood 100% | Bro Status Level Max</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border border-sky-500/20 text-center">
+                    <i class="fas fa-beer-Mug-empty text-3xl text-sky-400 mb-3"></i>
+                    <h4 class="font-bold text-white text-lg mb-1">Santé & Succès</h4>
+                    <p class="text-xs text-gray-400">À la réalisation de tous tes projets futurs !</p>
+                </div>
+            </div>
+
+            <!-- Return Button -->
+            <div class="text-center pt-8">
+                <button onclick="switchView('main-portal')" class="px-8 py-3.5 rounded-full glass-card hover:bg-white/10 text-white font-semibold text-sm transition border border-white/20">
+                    <i class="fas fa-arrow-left mr-2"></i> Retourner au Portail Principal
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- PASSWORD MODAL DIALOG                      -->
+    <!-- ========================================== -->
+    <div id="passwordModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 transition-all duration-300">
+        <div id="modalBox" class="glass-card rounded-3xl p-8 max-w-md w-full relative border border-white/20 shadow-2xl">
+            <!-- Close Button -->
+            <button onclick="closePasswordModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <div id="modalIcon" class="w-16 h-16 rounded-full mx-auto flex items-center justify-center text-2xl mb-4 bg-pink-500/20 text-pink-400 border border-pink-500/40">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3 id="modalTitle" class="text-2xl font-bold text-white">Espace Protégé</h3>
+                <p id="modalSubtitle" class="text-gray-400 text-xs mt-1">Saisis ton mot de passe secret pour accéder au contenu.</p>
+            </div>
+
+            <form onsubmit="handlePasswordSubmit(event)" class="space-y-4">
+                <div class="relative">
+                    <input type="password" id="passwordInput" placeholder="Entre le mot de passe..." autocomplete="off" required class="w-full px-5 py-3.5 rounded-2xl bg-white/5 border border-white/15 text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 text-center font-bold tracking-widest text-lg">
+                </div>
+
+                <div id="passwordError" class="hidden text-rose-400 text-xs font-semibold text-center">
+                    <i class="fas fa-exclamation-circle mr-1"></i> Mot de passe incorrect !
+                </div>
+
+                <button type="submit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 font-bold text-white text-sm shadow-lg hover:opacity-90 transition">
+                    Déverrouiller <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center border-t border-white/10 pt-4">
+                <p id="passwordHintText" class="text-[11px] text-gray-500 font-mono">
+                    Indice par défaut : Demo Key
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEMO / DEVELOPER BAR (Displays passwords clearly for user testing) -->
+    <div class="relative z-40 bg-slate-950/90 border-t border-white/10 px-4 py-3 text-center text-xs text-gray-400 flex flex-wrap justify-center items-center gap-4">
+        <span class="font-bold text-yellow-400 flex items-center gap-1">
+            <i class="fas fa-key"></i> Mots de passe de démo :
+        </span>
+        <span class="bg-pink-950/80 text-pink-300 px-2.5 py-1 rounded-md border border-pink-500/30">
+            Fille (Elle) : <strong class="text-white font-mono">contact moi</strong>
+        </span>
+        <span class="bg-sky-950/80 text-sky-300 px-2.5 py-1 rounded-md border border-sky-500/30">
+            Frère (Lui) : <strong class="text-white font-mono">contact moi</strong>
+        </span>
+    </div>
+
+    <script>
+        /* ========================================== */
+        /* APPLICATION STATE & CONFIGURATION          */
+        /* ========================================== */
+        const PASSWORDS = {
+            crush: "QUEEN",
+            brother: "goodbro"
+        };
+
+        let currentTargetSpace = null; // 'crush' or 'brother'
+
+        /* ========================================== */
+        /* SPA VIEW NAVIGATION                        */
+        /* ========================================== */
+        function switchView(viewId) {
+            // Hide all sections
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+
+            // Show selected view
+            const activeView = document.getElementById(`view-${viewId}`);
+            if (activeView) {
+                activeView.classList.remove('hidden');
+            }
+
+            // Toggle Home button visibility
+            const homeBtn = document.getElementById('homeNavBtn');
+            if (viewId === 'main-portal') {
+                homeBtn.classList.add('hidden');
+                document.getElementById('glow1').className = "absolute -top-40 -left-40 w-96 h-96 bg-pink-600/20 rounded-full blur-3xl transition-all duration-1000";
+            } else {
+                homeBtn.classList.remove('hidden');
+                if (viewId === 'crush-site') {
+                    document.getElementById('glow1').className = "absolute -top-40 -left-40 w-96 h-96 bg-pink-600/40 rounded-full blur-3xl transition-all duration-1000";
+                    initScratchCard();
+                } else if (viewId === 'brother-site') {
+                    document.getElementById('glow1').className = "absolute -top-40 -left-40 w-96 h-96 bg-sky-600/40 rounded-full blur-3xl transition-all duration-1000";
+                }
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ========================================== */
+        /* PASSWORD MODAL SYSTEM                      */
+        /* ========================================== */
+        function openPasswordModal(target) {
+            currentTargetSpace = target;
+            const modal = document.getElementById('passwordModal');
+            const icon = document.getElementById('modalIcon');
+            const title = document.getElementById('modalTitle');
+            const hint = document.getElementById('passwordHintText');
+            const error = document.getElementById('passwordError');
+            
+            document.getElementById('passwordInput').value = '';
+            error.classList.add('hidden');
+
+            if (target === 'crush') {
+                icon.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center text-2xl mb-4 bg-pink-500/20 text-pink-400 border border-pink-500/40";
+                icon.innerHTML = '<i class="fas fa-heart"></i>';
+                title.innerText = "Espace Privé de Justine";
+                hint.innerText = "Mot de passe par défaut : ";
+            } else {
+                icon.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center text-2xl mb-4 bg-sky-500/20 text-sky-400 border border-sky-500/40";
+                icon.innerHTML = '<i class="fas fa-gamepad"></i>';
+                title.innerText = "Espace Privé de Justin";
+                hint.innerText = "Mot de passe par défaut : ";
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => document.getElementById('passwordInput').focus(), 100);
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.add('hidden');
+        }
+
+        function handlePasswordSubmit(event) {
+            event.preventDefault();
+            const input = document.getElementById('passwordInput').value.trim().toUpperCase();
+            const expected = PASSWORDS[currentTargetSpace];
+            const modalBox = document.getElementById('modalBox');
+            const error = document.getElementById('passwordError');
+
+            if (input === expected) {
+                // Success
+                launchGlobalConfetti();
+                closePasswordModal();
+                if (currentTargetSpace === 'crush') {
+                    switchView('crush-site');
+                } else {
+                    switchView('brother-site');
+                }
+            } else {
+                // Wrong password - shake animation
+                error.classList.remove('hidden');
+                modalBox.classList.add('animate-shake');
+                setTimeout(() => modalBox.classList.remove('animate-shake'), 400);
+            }
+        }
+
+        /* ========================================== */
+        /* GLOBAL CONFETTI & SOUND SYSTEM             */
+        /* ========================================== */
+        function launchGlobalConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#f472b6', '#38bdf8', '#fde047', '#a855f7']
+            });
+        }
+
+        let audioCtx = null;
+        let isMusicPlaying = false;
+
+        function playSynthesizedMelody() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [
+                { f: 264, d: 0.3 }, { f: 264, d: 0.3 }, { f: 297, d: 0.5 }, { f: 264, d: 0.5 }, { f: 352, d: 0.5 }, { f: 330, d: 0.8 },
+                { f: 264, d: 0.3 }, { f: 264, d: 0.3 }, { f: 297, d: 0.5 }, { f: 264, d: 0.5 }, { f: 396, d: 0.5 }, { f: 352, d: 0.8 }
+            ];
+            let time = audioCtx.currentTime;
+            notes.forEach(note => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = note.f;
+                gain.gain.setValueAtTime(0.08, time);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + note.d);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(time);
+                osc.stop(time + note.d);
+                time += note.d + 0.05;
+            });
+        }
+
+        document.getElementById('musicToggle').addEventListener('click', () => {
+            const icon = document.getElementById('musicIcon');
+            const text = document.getElementById('musicText');
+            if (!isMusicPlaying) {
+                playSynthesizedMelody();
+                isMusicPlaying = true;
+                icon.className = "fas fa-volume-up text-pink-400";
+                text.innerText = "En lecture ♪";
+                setTimeout(() => {
+                    isMusicPlaying = false;
+                    icon.className = "fas fa-music text-pink-400";
+                    text.innerText = "Musique";
+                }, 6500);
+            }
+        });
+
+        /* ========================================== */
+        /* HER SITE: CAKE & SCRATCH CARD LOGIC        */
+        /* ========================================== */
+        let crushCandlesBlown = false;
+        function blowCrushCandles() {
+            if (crushCandlesBlown) return;
+            document.getElementById('cFlame1').classList.add('hidden');
+            document.getElementById('cFlame2').classList.add('hidden');
+            document.getElementById('cFlame3').classList.add('hidden');
+            document.getElementById('crushCakeStatus').innerHTML = "<span class='text-yellow-300 font-bold'>✨ Vœu accompli ! Que tous tes rêves se réalisent ! 🎉</span>";
+            launchGlobalConfetti();
+            crushCandlesBlown = true;
+        }
+
+        let scratchInitialized = false;
+        function initScratchCard() {
+            if (scratchInitialized) return;
+            const canvas = document.getElementById('scratchCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            const width = canvas.parentElement.clientWidth;
+            const height = canvas.parentElement.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+
+            // Fill Canvas with Metallic Gold Cover
+            const grad = ctx.createLinearGradient(0, 0, width, height);
+            grad.addColorStop(0, '#fef08a');
+            grad.addColorStop(0.5, '#eab308');
+            grad.addColorStop(1, '#ca8a04');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+
+            // Add text to scratch layer
+            ctx.fillStyle = '#713f12';
+            ctx.font = 'bold 14px Outfit, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('✨ GRATTE ICI POUR DÉCOUVRIR ✨', width / 2, height / 2 + 5);
+
+            let isScratching = false;
+
+            function scratch(e) {
+                if (!isScratching) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+                const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(x, y, 22, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            canvas.addEventListener('mousedown', (e) => { isScratching = true; scratch(e); });
+            canvas.addEventListener('mousemove', scratch);
+            window.addEventListener('mouseup', () => { isScratching = false; });
+
+            canvas.addEventListener('touchstart', (e) => { isScratching = true; scratch(e); });
+            canvas.addEventListener('touchmove', scratch);
+            window.addEventListener('touchend', () => { isScratching = false; });
+
+            scratchInitialized = true;
+        }
+
+        /* ========================================== */
+        /* HIS SITE: ARCADE MINI GAME                 */
+        /* ========================================== */
+        let gameRunning = false;
+        let score = 0;
+
+        function startArcadeGame() {
+            document.getElementById('gameStartOverlay').classList.add('hidden');
+            const canvas = document.getElementById('arcadeCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            let player = { x: canvas.width / 2, y: canvas.height - 30, size: 15 };
+            let bullets = [];
+            let asteroids = [];
+            score = 0;
+            document.getElementById('gameScore').innerText = "SCORE: 0";
+            gameRunning = true;
+
+            // Mouse / Touch listener
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                player.x = e.clientX - rect.left;
+            });
+            canvas.addEventListener('touchmove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                if (e.touches[0]) player.x = e.touches[0].clientX - rect.left;
+            });
+
+            // Auto shoot loop
+            let shootInterval = setInterval(() => {
+                if (!gameRunning) { clearInterval(shootInterval); return; }
+                bullets.push({ x: player.x, y: player.y - 15 });
+            }, 200);
+
+            // Spawn asteroids
+            let spawnInterval = setInterval(() => {
+                if (!gameRunning) { clearInterval(spawnInterval); return; }
+                asteroids.push({
+                    x: Math.random() * (canvas.width - 20) + 10,
+                    y: -10,
+                    speed: Math.random() * 2 + 1.5,
+                    size: 14
+                });
+            }, 700);
+
+            function loop() {
+                if (!gameRunning) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw Ship
+                ctx.fillStyle = '#38bdf8';
+                ctx.beginPath();
+                ctx.moveTo(player.x, player.y - 15);
+                ctx.lineTo(player.x - 12, player.y + 10);
+                ctx.lineTo(player.x + 12, player.y + 10);
+                ctx.fill();
+
+                // Update & Draw Bullets
+                ctx.fillStyle = '#fde047';
+                bullets.forEach((b, i) => {
+                    b.y -= 5;
+                    ctx.fillRect(b.x - 2, b.y, 4, 8);
+                    if (b.y < 0) bullets.splice(i, 1);
+                });
+
+                // Update & Draw Asteroids
+                asteroids.forEach((ast, ai) => {
+                    ast.y += ast.speed;
+                    ctx.fillStyle = '#f43f5e';
+                    ctx.beginPath();
+                    ctx.arc(ast.x, ast.y, ast.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Collision with bullet
+                    bullets.forEach((b, bi) => {
+                        let dist = Math.hypot(b.x - ast.x, b.y - ast.y);
+                        if (dist < ast.size + 4) {
+                            asteroids.splice(ai, 1);
+                            bullets.splice(bi, 1);
+                            score += 10;
+                            document.getElementById('gameScore').innerText = `SCORE: ${score}`;
+                        }
+                    });
+                });
+
+                requestAnimationFrame(loop);
+            }
+
+            loop();
+        }
+
+        // Initialize on Load
+        window.onload = function() {
+            launchGlobalConfetti();
+        };
+    </script>
+</body>
+</html>
